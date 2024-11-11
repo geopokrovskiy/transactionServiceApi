@@ -1,0 +1,61 @@
+plugins {
+	id 'java'
+	id 'org.springframework.boot' version "$springBootVersion"
+	id 'io.spring.dependency-management' version "$springDependencyManagementVersion"
+}
+
+group = 'com.geopokrovskiy'
+version = '0.0.1-SNAPSHOT'
+
+java {
+	sourceCompatibility = '21'
+}
+
+configurations {
+	compileOnly {
+		extendsFrom annotationProcessor
+	}
+}
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	implementation 'org.springframework.boot:spring-boot-starter-security'
+	implementation 'org.springframework.boot:spring-boot-starter-webflux'
+
+	//JWT
+	implementation "io.jsonwebtoken:jjwt:$jsonWebTokenVersion"
+	implementation "javax.xml.bind:jaxb-api:$jaxbApiVersion"
+
+ 	//DATABASE
+	implementation "org.postgresql:postgresql:$postgreSqlVersion"
+	implementation "org.flywaydb:flyway-core:$flywayDbVersion"
+
+	//LOMBOK
+	implementation "org.projectlombok:lombok:$lombokVersion"
+	annotationProcessor "org.projectlombok:lombok"
+
+	//TEST
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testImplementation "org.junit.jupiter:junit-jupiter-engine:${junitVersion}"
+	testImplementation 'org.junit.platform:junit-platform-launcher'
+	testImplementation 'org.springframework.boot:spring-boot-testcontainers'
+	testImplementation "org.testcontainers:postgresql:$testContainersPostgresVersion"
+	testImplementation 'org.mockito:mockito-core'
+	testImplementation "org.junit.jupiter:junit-jupiter-api:$junitVersion"
+
+
+	//MAPSTRUCT
+	implementation "org.mapstruct:mapstruct:$mapStructVersion"
+	annotationProcessor "org.mapstruct:mapstruct-processor:$mapStructVersion"
+
+	//COMMON
+	implementation files("$commonPath")
+}
+
+tasks.named('test') {
+	useJUnitPlatform()
+}

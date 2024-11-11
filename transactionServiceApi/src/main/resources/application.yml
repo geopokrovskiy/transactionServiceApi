@@ -1,0 +1,29 @@
+server:
+    port: 8084
+
+spring:
+  application:
+    name: transaction_service_api
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+  datasource:
+    url: jdbc:postgresql://localhost:5432/transaction_service_api
+    username: postgres
+    password: root
+  flyway:
+    url: jdbc:postgresql://localhost:5432/transaction_service_api
+    locations: classpath:db/migration
+    user: ${spring.datasource.username}
+    password: ${spring.datasource.password}
+
+logging:
+  level:
+    org.springframework.web: INFO
+
+
+
+
+
+

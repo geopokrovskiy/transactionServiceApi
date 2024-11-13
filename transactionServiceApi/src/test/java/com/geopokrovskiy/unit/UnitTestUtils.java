@@ -1,4 +1,4 @@
-package com.geopokrovskiy.unit.service;
+package com.geopokrovskiy.unit;
 
 import com.geopokrovskiy.entity.status.Status;
 import com.geopokrovskiy.entity.wallet_type.WalletTypeEntity;

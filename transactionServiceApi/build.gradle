@@ -23,9 +23,9 @@ repositories {
 
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.springframework.boot:spring-boot-starter-security'
 	implementation 'org.springframework.session:spring-session-core'
-	implementation 'org.springframework.boot:spring-boot-starter-webflux'
 
 	//JWT
 	implementation "io.jsonwebtoken:jjwt:$jsonWebTokenVersion"
@@ -41,9 +41,7 @@ dependencies {
 
 	//TEST
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
-	testImplementation 'io.projectreactor:reactor-test'
-	testImplementation "org.junit.jupiter:junit-jupiter-engine:${junitVersion}"
-	testImplementation 'org.junit.platform:junit-platform-launcher'
+	testImplementation 'org.springframework.security:spring-security-test'
 	testImplementation 'org.mockito:mockito-core'
 	testImplementation "org.junit.jupiter:junit-jupiter-api:$junitVersion"
 

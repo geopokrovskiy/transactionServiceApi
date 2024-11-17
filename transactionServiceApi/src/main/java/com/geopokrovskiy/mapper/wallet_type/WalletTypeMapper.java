@@ -10,4 +10,5 @@ public interface WalletTypeMapper {
 
     @InheritInverseConfiguration
     WalletTypeResponseDto map(WalletTypeEntity walletType);
+
 }

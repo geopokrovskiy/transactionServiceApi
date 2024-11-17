@@ -1,14 +1,12 @@
 package com.geopokrovskiy.entity.wallet;
 
 import com.geopokrovskiy.entity.status.Status;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.GenericGenerator;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -16,11 +14,18 @@ import java.util.UUID;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "wallets")
+@Table(schema = "transaction_service", name = "wallets",
+        uniqueConstraints = {@UniqueConstraint(columnNames = {"name", "wallet_type_uid"})})
+
 @Entity
 @Builder(toBuilder = true)
 public class WalletEntity {
     @Id
+    @GeneratedValue(generator = "UUID")
+    @GenericGenerator(
+            name = "UUID",
+            strategy = "org.hibernate.id.UUIDGenerator"
+    )
     private UUID uid;
 
     @Column(name = "created_at")
@@ -42,12 +47,13 @@ public class WalletEntity {
     private Double balance;
 
     @Column
+    @Enumerated(EnumType.STRING)
     private Status status;
 
     @Column(name = "archived_at")
     private LocalDateTime archivedAt;
 
-  // private List<PaymentRequestEntity> paymentRequestsList;
+    // private List<PaymentRequestEntity> paymentRequestsList;
 
-  //  private List<TransactionEntity> transactionsList;
+    //  private List<TransactionEntity> transactionsList;
 }

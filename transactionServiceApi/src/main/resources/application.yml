@@ -1,5 +1,5 @@
 server:
-    port: 8084
+  port: 8084
 
 spring:
   application:
@@ -8,22 +8,24 @@ spring:
     show-sql: true
     hibernate:
       ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
   datasource:
-    url: jdbc:postgresql://localhost:5432/transaction_service_api
-    username: postgres
-    password: root
+    shard1:
+      jdbc-url: jdbc:postgresql://localhost:5432/transaction_service_api_shard1
+      username: postgres
+      password: root
+    shard2:
+      jdbc-url: jdbc:postgresql://localhost:5432/transaction_service_api_shard2
+      username: postgres
+      password: root
   flyway:
-    url: jdbc:postgresql://localhost:5432/transaction_service_api
+    enabled: false
     locations: classpath:db/migration
-    user: ${spring.datasource.username}
-    password: ${spring.datasource.password}
+    user: ${spring.datasource.shard1.username}
+    password: ${spring.datasource.shard1.password}
 
 logging:
   level:
     org.springframework.web: INFO
-
-
-
-
-
-

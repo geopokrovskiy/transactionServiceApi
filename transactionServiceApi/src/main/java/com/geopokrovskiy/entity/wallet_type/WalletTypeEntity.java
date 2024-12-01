@@ -28,11 +28,11 @@ public class WalletTypeEntity {
     @Column(name = "modified_at")
     private LocalDateTime modifiedAt;
 
-    @Column(name = "name")
+    @Column()
     private String name;
 
     @Column(name = "currency_code")
-    private String currency_code;
+    private String currencyCode;
 
     @Column
     @Enumerated(EnumType.STRING)

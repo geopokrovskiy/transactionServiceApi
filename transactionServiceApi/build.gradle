@@ -26,6 +26,8 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.springframework.session:spring-session-core'
 
+	annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
+
 	//JWT
 	implementation "io.jsonwebtoken:jjwt:$jsonWebTokenVersion"
 	implementation "javax.xml.bind:jaxb-api:$jaxbApiVersion"

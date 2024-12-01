@@ -1,10 +1,12 @@
 package com.geopokrovskiy.rest;
 
+import com.geopokrovskiy.configuration.datasource.ShardContextHolder;
 import com.geopokrovskiy.dto.transaction_service.wallet.WalletCreateRequestDto;
 import com.geopokrovskiy.dto.transaction_service.wallet.WalletResponseDto;
 import com.geopokrovskiy.entity.wallet.WalletEntity;
 import com.geopokrovskiy.mapper.wallet.WalletMapper;
 import com.geopokrovskiy.service.WalletService;
+import com.geopokrovskiy.utils.ShardUtils;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -28,12 +30,12 @@ public class WalletController {
     @PostMapping
     public ResponseEntity<WalletResponseDto> createNewWallet(@RequestBody WalletCreateRequestDto walletCreateRequestDto, @RequestHeader("Cookie") UUID userId) {
         try {
-            WalletEntity savedEntity = walletService.addNewWallet(new WalletEntity().toBuilder().
-                    walletTypeId(walletCreateRequestDto.getWalletTypeId())
+            this.setShard(userId);
+            WalletEntity savedEntity = walletService.addNewWallet(new WalletEntity().toBuilder()
                     .name(walletCreateRequestDto.getName())
                     .userId(userId)
-                    .build());
-            WalletResponseDto walletResponseDto = walletMapper.map(walletService.addNewWallet(savedEntity));
+                    .build(), walletCreateRequestDto.getCurrencyCode());
+            WalletResponseDto walletResponseDto = walletMapper.map(savedEntity);
             log.info("A new wallet has been successfully created!");
             return new ResponseEntity<>(walletResponseDto, HttpStatusCode.valueOf(201));
         } catch (IllegalArgumentException e) {
@@ -50,15 +52,17 @@ public class WalletController {
 
     @GetMapping("/{userId}")
     public ResponseEntity<List<WalletResponseDto>> getAllWalletsOfUser(@PathVariable UUID userId) {
+        this.setShard(userId);
         List<WalletEntity> retrievedWallets = walletService.getAllWalletsOfAUser(userId);
         return new ResponseEntity<>(retrievedWallets.stream().map(walletMapper::map).toList(),
                 HttpStatusCode.valueOf(200));
     }
 
-    @GetMapping("/{userId}/{currencyId}")
-    public ResponseEntity<List<WalletResponseDto>> getAllWalletsOfUserWithCurrency(@PathVariable UUID userId, @PathVariable UUID currencyId) {
+    @GetMapping("/{userId}/{currencyCode}")
+    public ResponseEntity<List<WalletResponseDto>> getAllWalletsOfUserWithCurrency(@PathVariable UUID userId, @PathVariable String currencyCode) {
         try {
-            List<WalletEntity> retrievedWallets = walletService.getAllWalletsOfAUserWithCurrency(userId, currencyId);
+            this.setShard(userId);
+            List<WalletEntity> retrievedWallets = walletService.getAllWalletsOfAUserWithCurrency(userId, currencyCode);
             return new ResponseEntity<>(retrievedWallets.stream().map(walletMapper::map).toList(), HttpStatusCode.valueOf(200));
         } catch (IllegalArgumentException e) {
             log.warn("A wallet list couldn't be retrieved because of an incorrect request parameter");
@@ -67,5 +71,10 @@ public class WalletController {
             log.warn("A wallet list couldn't be retrieved because of a server error");
             return new ResponseEntity<>(HttpStatusCode.valueOf(500));
         }
+    }
+
+    private void setShard(UUID userId) {
+        String shard = ShardUtils.determineShard(userId);
+        ShardContextHolder.setCurrentShard(shard);
     }
 }

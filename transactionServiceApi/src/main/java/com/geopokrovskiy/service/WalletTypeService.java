@@ -1,5 +1,6 @@
 package com.geopokrovskiy.service;
 
+import com.geopokrovskiy.configuration.datasource.ShardContextHolder;
 import com.geopokrovskiy.entity.wallet_type.WalletTypeEntity;
 import com.geopokrovskiy.repository.WalletTypeRepository;
 import lombok.Data;
@@ -18,10 +19,20 @@ public class WalletTypeService {
     public List<WalletTypeEntity> getAllWalletTypes() {
         List<WalletTypeEntity> walletTypesList = walletTypeRepository.findAll();
         log.info("The following wallet types have been retrieved: {}", walletTypesList);
+        ShardContextHolder.clearShard();
         return walletTypesList;
     }
 
     public WalletTypeEntity getWalletTypeByUid(UUID uid) {
-        return walletTypeRepository.findByUid(uid);
+        WalletTypeEntity retrievedWalletType = walletTypeRepository.findByUid(uid);
+        ShardContextHolder.clearShard();
+        return retrievedWalletType;
     }
+
+    public WalletTypeEntity getWalletTypeByCurrencyCode(String currencyCode) {
+        WalletTypeEntity retrievedWalletType = walletTypeRepository.findByCurrencyCode(currencyCode);
+        ShardContextHolder.clearShard();
+        return retrievedWalletType;
+    }
+
 }

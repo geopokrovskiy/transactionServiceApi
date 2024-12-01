@@ -1,5 +1,6 @@
 package com.geopokrovskiy.service;
 
+import com.geopokrovskiy.configuration.datasource.ShardContextHolder;
 import com.geopokrovskiy.entity.status.Status;
 import com.geopokrovskiy.entity.wallet.WalletEntity;
 import com.geopokrovskiy.entity.wallet_type.WalletTypeEntity;
@@ -22,16 +23,19 @@ public class WalletService {
     private final WalletTypeService walletTypeService;
 
     @Transactional
-    public WalletEntity addNewWallet(WalletEntity wallet) {
-        WalletTypeEntity walletType = walletTypeService.getWalletTypeByUid(wallet.getWalletTypeId());
+    public WalletEntity addNewWallet(WalletEntity wallet, String currencyCode) {
+        WalletTypeEntity walletType = walletTypeService.getWalletTypeByCurrencyCode(currencyCode);
         if (walletType != null && Status.ACTIVE == walletType.getStatus()) {
-            log.info("A new request for creation of wallet with currency {} has been received for user {}.", walletType.getCurrency_code(), wallet.getUserId());
-            return walletRepository.save(wallet.toBuilder()
+            log.info("A new request for creation of wallet with currency {} has been received for user {}.", walletType.getCurrencyCode(), wallet.getUserId());
+            WalletEntity savedEntity = walletRepository.save(wallet.toBuilder()
                     .balance(0d)
                     .createdAt(LocalDateTime.now())
                     .modifiedAt(LocalDateTime.now())
+                    .walletTypeId(walletType.getUid())
                     .status(Status.ACTIVE)
                     .build());
+            ShardContextHolder.clearShard();
+            return savedEntity;
         } else {
             log.warn("An incorrect POST request has been made by user {}.", wallet.getUserId());
             throw new IllegalArgumentException("Invalid wallet type");
@@ -40,22 +44,25 @@ public class WalletService {
 
     public List<WalletEntity> getAllWalletsOfAUser(UUID userId) {
         log.info("A new request for retrieval of all wallets has been received for user {}.", userId);
-        return walletRepository.findAll().stream().filter(wallet -> userId.equals(wallet.getUserId())
+        List<WalletEntity> retrievedEntities = walletRepository.findAll().stream().filter(wallet -> userId.equals(wallet.getUserId())
                 && wallet.getStatus() == Status.ACTIVE).toList();
+        ShardContextHolder.clearShard();
+        return retrievedEntities;
     }
 
-    public List<WalletEntity> getAllWalletsOfAUserWithCurrency(UUID userId, UUID currencyId) {
-        WalletTypeEntity walletType = walletTypeService.getWalletTypeByUid(currencyId);
+    public List<WalletEntity> getAllWalletsOfAUserWithCurrency(UUID userId, String currencyCode) {
+        WalletTypeEntity walletType = walletTypeService.getWalletTypeByCurrencyCode(currencyCode);
         if (walletType != null && Status.ACTIVE == walletType.getStatus()) {
-            log.info("A new request for retrieval of all wallets with currency {} has been received for user {}.", walletType.getCurrency_code(), userId);
-            return walletRepository.findAll().stream().filter(wallet -> userId.equals(wallet.getUserId())
+            log.info("A new request for retrieval of all wallets with currency {} has been received for user {}.", currencyCode, userId);
+            List<WalletEntity> retrievedEntities = walletRepository.findAll().stream().filter(wallet -> userId.equals(wallet.getUserId())
                     && wallet.getStatus() == Status.ACTIVE
-                    && currencyId.equals(wallet.getWalletTypeId())).toList();
+                    && currencyCode.equals(walletTypeService.getWalletTypeByUid(wallet.getWalletTypeId()).getCurrencyCode())).toList();
+            ShardContextHolder.clearShard();
+            return retrievedEntities;
         } else {
             log.warn("An incorrect GET request has been made by user {}.", userId);
             throw new IllegalArgumentException("Invalid wallet type");
         }
     }
-
 
 }

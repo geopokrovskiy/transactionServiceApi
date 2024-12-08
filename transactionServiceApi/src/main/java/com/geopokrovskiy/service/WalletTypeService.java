@@ -3,6 +3,7 @@ package com.geopokrovskiy.service;
 import com.geopokrovskiy.configuration.datasource.ShardContextHolder;
 import com.geopokrovskiy.entity.wallet_type.WalletTypeEntity;
 import com.geopokrovskiy.repository.WalletTypeRepository;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -11,7 +12,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Service
-@Data
+@AllArgsConstructor
 @Slf4j
 public class WalletTypeService {
     private final WalletTypeRepository walletTypeRepository;

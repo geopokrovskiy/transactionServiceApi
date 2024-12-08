@@ -5,7 +5,7 @@ import com.geopokrovskiy.entity.status.Status;
 import com.geopokrovskiy.entity.wallet.WalletEntity;
 import com.geopokrovskiy.entity.wallet_type.WalletTypeEntity;
 import com.geopokrovskiy.repository.WalletRepository;
-import lombok.Data;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
-@Data
+@AllArgsConstructor
 @Slf4j
 @Service
 public class WalletService {
@@ -40,6 +40,10 @@ public class WalletService {
             log.warn("An incorrect POST request has been made by user {}.", wallet.getUserId());
             throw new IllegalArgumentException("Invalid wallet type");
         }
+    }
+
+    public WalletEntity getWalletEntityById(UUID walletId) {
+        return walletRepository.findById(walletId).orElse(null);
     }
 
     public List<WalletEntity> getAllWalletsOfAUser(UUID userId) {

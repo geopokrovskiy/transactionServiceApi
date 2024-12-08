@@ -1,43 +1,53 @@
 package com.geopokrovskiy.entity.payment_request;
 
 import com.geopokrovskiy.entity.status.Status;
-import jakarta.persistence.Column;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.hibernate.annotations.GenericGenerator;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+@AllArgsConstructor
+@NoArgsConstructor
 @Data
 @Builder(toBuilder = true)
-@Table(schema = "transaction_service.payment_requests")
+@Entity
+@Table(schema = "transaction_service", name = "payment_requests")
 public class PaymentRequestEntity {
     @Id
-    private UUID uud;
+    @GeneratedValue(generator = "UUID")
+    @GenericGenerator(
+            name = "UUID",
+            strategy = "org.hibernate.id.UUIDGenerator"
+    )
+    private UUID uid;
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
-    @Column(name = "update_at")
-    private LocalDateTime updatedAt;
+    @Column(name = "modified_at")
+    private LocalDateTime modifiedAt;
 
     @Column(name = "user_uid")
     private UUID userId;
 
-    @Column
+    @Column(name = "wallet_uid")
     private UUID walletId;
 
     @Column
     private Double amount;
 
     @Column
+    @Enumerated(EnumType.STRING)
     private Status status;
 
     @Column
     private String comment;
 
-    @Column
+    @Column(name = "payment_method_id")
     private Long paymentMethodId;
 }

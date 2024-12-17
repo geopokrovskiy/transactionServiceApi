@@ -26,7 +26,7 @@ public class TopUpController {
     @PostMapping
     public ResponseEntity<TopUpResponseDto> createTopUp(@RequestBody TopUpCreateRequestDto topUpCreateRequestDto, @RequestHeader("Cookie") UUID userId) {
         try {
-            this.setShard(userId);
+            ShardUtils.setShard(userId);
             TopUpRequestEntity topUpRequestEntityToSave = topUpMapper.map(topUpCreateRequestDto);
             TopUpRequestEntity savedTopUpRequestEntity = topUpService.addNewTopUp(topUpRequestEntityToSave, userId);
             TopUpResponseDto topUpResponseDto = topUpMapper.map(savedTopUpRequestEntity);
@@ -36,10 +36,6 @@ public class TopUpController {
         }
     }
 
-    private void setShard(UUID userId) {
-        String shard = ShardUtils.determineShard(userId);
-        ShardContextHolder.setCurrentShard(shard);
-    }
 
 
 }

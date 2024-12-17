@@ -12,7 +12,7 @@ public class ShardRoutingDataSource extends AbstractRoutingDataSource {
         if (shard == null) {
             shard = "shard1";
         }
-        log.info("Current shard is {}", shard);
+        log.debug("Current shard is {}", shard);
         return shard;
     }
 }

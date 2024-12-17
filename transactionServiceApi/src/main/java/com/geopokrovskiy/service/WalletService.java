@@ -29,6 +29,7 @@ public class WalletService {
             log.info("A new request for creation of wallet with currency {} has been received for user {}.", walletType.getCurrencyCode(), wallet.getUserId());
             WalletEntity savedEntity = walletRepository.save(wallet.toBuilder()
                     .balance(0d)
+                    .uid(UUID.randomUUID())
                     .createdAt(LocalDateTime.now())
                     .modifiedAt(LocalDateTime.now())
                     .walletTypeId(walletType.getUid())
@@ -67,6 +68,11 @@ public class WalletService {
             log.warn("An incorrect GET request has been made by user {}.", userId);
             throw new IllegalArgumentException("Invalid wallet type");
         }
+    }
+
+    public WalletEntity addNewWallet(WalletEntity wallet) {
+        wallet.setUid(wallet.getUid());
+        return walletRepository.save(wallet);
     }
 
 }

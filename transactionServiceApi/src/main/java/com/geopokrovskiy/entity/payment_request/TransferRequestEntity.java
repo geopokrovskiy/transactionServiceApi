@@ -19,11 +19,7 @@ import java.util.UUID;
 @Table(schema = "transaction_service", name = "transfer_requests")
 public class TransferRequestEntity {
     @Id
-    @GeneratedValue(generator = "UUID")
-    @GenericGenerator(
-            name = "UUID",
-            strategy = "org.hibernate.id.UUIDGenerator"
-    )
+    @Column(name = "uid")
     private UUID uid;
 
     @Column(name = "payment_request_uid_from")
@@ -35,7 +31,7 @@ public class TransferRequestEntity {
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
-    @Column
+    @Column(name = "system_rate")
     private String systemRate;
 
     @Transient
@@ -48,7 +44,16 @@ public class TransferRequestEntity {
     private long paymentMethodId;
 
     @Transient
-    private UUID walletId;
+    private UUID walletFromId;
+
+    @Transient
+    private UUID walletToId;
+
+    @Transient
+    private UUID userFromId;
+
+    @Transient
+    private UUID userToId;
 
     @Transient
     private LocalDateTime modifiedAt;
@@ -56,6 +61,4 @@ public class TransferRequestEntity {
     @Transient
     private Status status;
 
-    @Transient
-    private UUID userId;
 }

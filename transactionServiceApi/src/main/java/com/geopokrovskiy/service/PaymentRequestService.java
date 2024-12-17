@@ -15,10 +15,15 @@ public class PaymentRequestService {
     private final PaymentRequestRepository paymentRequestRepository;
 
     public PaymentRequestEntity addNewPaymentRequest(PaymentRequestEntity paymentRequestEntity) {
+        paymentRequestEntity.setUid(UUID.randomUUID());
         return paymentRequestRepository.save(paymentRequestEntity);
     }
 
     public PaymentRequestEntity getPaymentRequestById(UUID id) {
         return paymentRequestRepository.findById(id).orElse(null);
+    }
+
+    public PaymentRequestEntity addPaymentRequest(PaymentRequestEntity paymentRequestEntity) {
+        return paymentRequestRepository.save(paymentRequestEntity);
     }
 }

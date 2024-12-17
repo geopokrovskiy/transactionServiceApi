@@ -30,7 +30,7 @@ public class WalletController {
     @PostMapping
     public ResponseEntity<WalletResponseDto> createNewWallet(@RequestBody WalletCreateRequestDto walletCreateRequestDto, @RequestHeader("Cookie") UUID userId) {
         try {
-            this.setShard(userId);
+            ShardUtils.setShard(userId);
             WalletEntity savedEntity = walletService.addNewWallet(new WalletEntity().toBuilder()
                     .name(walletCreateRequestDto.getName())
                     .userId(userId)
@@ -52,7 +52,7 @@ public class WalletController {
 
     @GetMapping("/{userId}")
     public ResponseEntity<List<WalletResponseDto>> getAllWalletsOfUser(@PathVariable UUID userId) {
-        this.setShard(userId);
+        ShardUtils.setShard(userId);
         List<WalletEntity> retrievedWallets = walletService.getAllWalletsOfAUser(userId);
         return new ResponseEntity<>(retrievedWallets.stream().map(walletMapper::map).toList(),
                 HttpStatusCode.valueOf(200));
@@ -61,7 +61,7 @@ public class WalletController {
     @GetMapping("/{userId}/{currencyCode}")
     public ResponseEntity<List<WalletResponseDto>> getAllWalletsOfUserWithCurrency(@PathVariable UUID userId, @PathVariable String currencyCode) {
         try {
-            this.setShard(userId);
+            ShardUtils.setShard(userId);
             List<WalletEntity> retrievedWallets = walletService.getAllWalletsOfAUserWithCurrency(userId, currencyCode);
             return new ResponseEntity<>(retrievedWallets.stream().map(walletMapper::map).toList(), HttpStatusCode.valueOf(200));
         } catch (IllegalArgumentException e) {
@@ -73,8 +73,4 @@ public class WalletController {
         }
     }
 
-    private void setShard(UUID userId) {
-        String shard = ShardUtils.determineShard(userId);
-        ShardContextHolder.setCurrentShard(shard);
-    }
 }

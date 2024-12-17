@@ -19,11 +19,7 @@ import java.util.UUID;
 @Table(schema = "transaction_service", name = "payment_requests")
 public class PaymentRequestEntity {
     @Id
-    @GeneratedValue(generator = "UUID")
-    @GenericGenerator(
-            name = "UUID",
-            strategy = "org.hibernate.id.UUIDGenerator"
-    )
+    @Column(name = "uid")
     private UUID uid;
 
     @Column(name = "created_at")

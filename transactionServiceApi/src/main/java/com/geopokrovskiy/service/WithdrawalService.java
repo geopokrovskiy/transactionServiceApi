@@ -31,7 +31,7 @@ public class WithdrawalService {
         }
         try {
             PaymentRequestEntity paymentRequestToSave = new PaymentRequestEntity().toBuilder()
-                    .amount(withdrawalRequestEntity.getAmount())
+                    .amount((-1) * withdrawalRequestEntity.getAmount())
                     .comment(withdrawalRequestEntity.getComment())
                     .paymentMethodId(withdrawalRequestEntity.getPaymentMethodId())
                     .userId(userId)
@@ -49,7 +49,7 @@ public class WithdrawalService {
                     .comment(savedPaymentRequest.getComment())
                     .paymentRequestId(savedPaymentRequest.getUid())
                     .paymentMethodId(savedPaymentRequest.getPaymentMethodId())
-                    .amount(savedPaymentRequest.getAmount())
+                    .amount((-1) * savedPaymentRequest.getAmount())
                     .walletId(walletEntity.getUid())
                     .status(Status.ACTIVE)
                     .userId(userId)

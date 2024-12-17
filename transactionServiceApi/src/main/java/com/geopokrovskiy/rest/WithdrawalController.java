@@ -26,7 +26,7 @@ public class WithdrawalController {
     @PostMapping
     public ResponseEntity<WithdrawalResponseDto> createTopUp(@RequestBody WithdrawalCreateRequestDto withdrawalCreateRequestDto, @RequestHeader("Cookie") UUID userId) {
         try {
-            this.setShard(userId);
+            ShardUtils.setShard(userId);
             WithdrawalRequestEntity withdrawalRequestEntityToSave = withdrawalMapper.map(withdrawalCreateRequestDto);
             WithdrawalRequestEntity savedWithdrawalRequestEntity = withdrawalService.addNewWithdrawal(withdrawalRequestEntityToSave, userId);
             WithdrawalResponseDto withdrawalResponseDto = withdrawalMapper.map(savedWithdrawalRequestEntity);
@@ -36,8 +36,4 @@ public class WithdrawalController {
         }
     }
 
-    private void setShard(UUID userId) {
-        String shard = ShardUtils.determineShard(userId);
-        ShardContextHolder.setCurrentShard(shard);
-    }
 }

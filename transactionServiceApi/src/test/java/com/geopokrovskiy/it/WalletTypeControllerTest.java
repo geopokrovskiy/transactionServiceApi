@@ -1,16 +1,15 @@
 package com.geopokrovskiy.it;
 
-import com.geopokrovskiy.configuration.TestDatabaseConfiguration;
+import com.geopokrovskiy.configuration.SpringBootIntegrationTest;
 import com.geopokrovskiy.entity.status.Status;
 import com.geopokrovskiy.entity.wallet_type.WalletTypeEntity;
 import com.geopokrovskiy.repository.WalletTypeRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Import;
+import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
@@ -23,11 +22,12 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@Import(TestDatabaseConfiguration.class)
-@TestInstance(TestInstance.Lifecycle.PER_METHOD)
-@AutoConfigureMockMvc
-public class WalletTypeControllerTest {
+
+@Slf4j
+public class WalletTypeControllerTest extends SpringBootIntegrationTest {
+
+    @LocalServerPort
+    private Integer port;
 
     @Autowired
     private WalletTypeRepository walletTypeRepository;
@@ -44,14 +44,14 @@ public class WalletTypeControllerTest {
                         .name("Test coin")
                         .createdAt(LocalDateTime.now())
                         .creator("geopokrovskiy")
-                        .currency_code("TCN")
+                        .currencyCode("TCN")
                         .status(Status.ACTIVE).build(),
                 new WalletTypeEntity().toBuilder()
                         .uid(UUID.randomUUID())
                         .name("Virtual coin")
                         .createdAt(LocalDateTime.now())
                         .creator("geopokrovskiy")
-                        .currency_code("VCN")
+                        .currencyCode("VCN")
                         .status(Status.ACTIVE).build()));
     }
 

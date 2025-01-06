@@ -1,5 +1,5 @@
 package com.geopokrovskiy.entity.transaction;
 
 public enum TransactionState {
-    CREATED, SUCCESS, FAILED
+    CREATED, IN_PROGRESS, SUCCESS, FAILED
 }

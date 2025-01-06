@@ -49,6 +49,7 @@ dependencies {
 	//TEST CONTAINERS
 	testImplementation 'org.springframework.boot:spring-boot-testcontainers'
 	testImplementation "org.testcontainers:postgresql:$testContainersPostgresVersion"
+	testImplementation "org.testcontainers:junit-jupiter:$testContainersJunitJupiter"
 
 
 	//MAPSTRUCT

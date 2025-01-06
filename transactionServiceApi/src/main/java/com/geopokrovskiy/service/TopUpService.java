@@ -28,7 +28,7 @@ public class TopUpService {
     @Transactional
     public TopUpRequestEntity addNewTopUp(TopUpRequestEntity topUpRequestEntity, UUID userId) {
         WalletEntity walletEntity = walletService.getWalletEntityById(topUpRequestEntity.getWalletId());
-        if(walletEntity == null) {
+        if (walletEntity == null) {
             log.error("Wallet not found");
             throw new RuntimeException("Wallet with given id not found");
         }
@@ -65,5 +65,9 @@ public class TopUpService {
             log.error(e.getMessage());
             throw e;
         }
+    }
+
+    public TopUpRequestEntity getTopUpById(UUID topUpId) {
+        return topUpRepository.findById(topUpId).orElse(null);
     }
 }

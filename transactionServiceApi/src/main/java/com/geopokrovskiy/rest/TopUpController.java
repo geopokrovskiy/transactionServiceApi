@@ -64,7 +64,7 @@ public class TopUpController {
         try {
             TransactionState transactionState = TransactionState.valueOf(transactionFinalizeDto.getTransactionState());
             ShardUtils.setShard(userId);
-            TransactionEntity topUpRequestInProgress = transactionService.finalizeTopUpTransaction(topUpTransactionId, transactionState, userId);
+            TransactionEntity topUpRequestInProgress = transactionService.finalizeTransaction(topUpTransactionId, transactionState, userId);
             TransactionResponseDto transactionResponseDto = transactionMapper.map(topUpRequestInProgress);
             return new ResponseEntity<>(transactionResponseDto, HttpStatusCode.valueOf(200));
         }

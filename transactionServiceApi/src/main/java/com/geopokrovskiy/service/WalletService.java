@@ -75,4 +75,11 @@ public class WalletService {
         return walletRepository.save(wallet);
     }
 
+    public WalletEntity updateWalletBalance(WalletEntity wallet, double amount) {
+        double actualBalance = wallet.getBalance();
+        wallet.setBalance(actualBalance + amount);
+        wallet.setModifiedAt(LocalDateTime.now());
+        return walletRepository.save(wallet);
+    }
+
 }

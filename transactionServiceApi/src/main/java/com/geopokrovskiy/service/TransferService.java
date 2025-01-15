@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -204,6 +205,30 @@ public class TransferService {
             return false;
         }
         return true;
+    }
+
+    public TransferRequestEntity getTransferById(UUID transferRequestId) throws ExecutionException, InterruptedException {
+        Future<TransferRequestEntity> transferRequestEntityFuture;
+        TransferRequestEntity transferRequestEntity;
+        try (ExecutorService executorService = Executors.newSingleThreadExecutor()) {
+            transferRequestEntityFuture = executorService.submit(() -> {
+                ShardContextHolder.setCurrentShard("shard1");
+                return transferRepository.findById(transferRequestId).orElse(null);
+            });
+        }
+        transferRequestEntity = transferRequestEntityFuture.get();
+        if (transferRequestEntity != null) {
+            return transferRequestEntity;
+        } else {
+            try (ExecutorService executorService = Executors.newSingleThreadExecutor()) {
+                transferRequestEntityFuture = executorService.submit(() -> {
+                    ShardContextHolder.setCurrentShard("shard2");
+                    return transferRepository.findById(transferRequestId).orElse(null);
+                });
+            }
+            transferRequestEntity = transferRequestEntityFuture.get();
+            return transferRequestEntity;
+        }
     }
 
 

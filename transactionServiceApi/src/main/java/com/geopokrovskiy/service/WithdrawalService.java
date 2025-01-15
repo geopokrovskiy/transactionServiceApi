@@ -62,4 +62,8 @@ public class WithdrawalService {
             throw e;
         }
     }
+
+    public WithdrawalRequestEntity getWithdrawalById(UUID id) {
+        return withdrawalRepository.findById(id).orElse(null);
+    }
 }

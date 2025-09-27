@@ -1,6 +1,5 @@
 package com.geopokrovskiy.rest;
 
-import com.geopokrovskiy.configuration.datasource.ShardContextHolder;
 import com.geopokrovskiy.dto.transaction_service.top_up.TopUpCreateRequestDto;
 import com.geopokrovskiy.dto.transaction_service.top_up.TopUpResponseDto;
 import com.geopokrovskiy.dto.transaction_service.transaction.TransactionFinalizeDto;
@@ -14,7 +13,6 @@ import com.geopokrovskiy.service.TopUpService;
 import com.geopokrovskiy.service.TransactionService;
 import com.geopokrovskiy.utils.ShardUtils;
 import lombok.AllArgsConstructor;
-import org.apache.coyote.Response;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -33,7 +31,7 @@ public class TopUpController {
     private final TransactionMapper transactionMapper;
 
     @PostMapping
-    public ResponseEntity<TopUpResponseDto> createTopUp(@RequestBody TopUpCreateRequestDto topUpCreateRequestDto, @RequestHeader("Cookie") UUID userId) {
+    public ResponseEntity<?> createTopUp(@RequestBody TopUpCreateRequestDto topUpCreateRequestDto, @RequestHeader("Cookie") UUID userId) {
         try {
             ShardUtils.setShard(userId);
             TopUpRequestEntity topUpRequestEntityToSave = topUpMapper.map(topUpCreateRequestDto);
@@ -41,40 +39,36 @@ public class TopUpController {
             TopUpResponseDto topUpResponseDto = topUpMapper.map(savedTopUpRequestEntity);
             return new ResponseEntity<>(topUpResponseDto, HttpStatusCode.valueOf(201));
         } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatusCode.valueOf(400));
+            return new ResponseEntity<>(e.getMessage(), HttpStatusCode.valueOf(400));
         }
     }
 
     @PostMapping("/transaction/process/{topUpRequestId}")
-    public ResponseEntity<TransactionResponseDto> processTopUpTransaction(@PathVariable UUID topUpRequestId, @RequestHeader("Cookie") UUID userId) {
+    public ResponseEntity<?> processTopUpTransaction(@PathVariable UUID topUpRequestId, @RequestHeader("Cookie") UUID userId) {
         try {
             ShardUtils.setShard(userId);
             TransactionEntity topUpRequestCreated = transactionService.createNewTopUpTransaction(topUpRequestId, userId);
             TransactionResponseDto transactionResponseDto = transactionMapper.map(topUpRequestCreated);
             return new ResponseEntity<>(transactionResponseDto, HttpStatusCode.valueOf(201));
         } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatusCode.valueOf(400));
+            return new ResponseEntity<>(e.getMessage(), HttpStatusCode.valueOf(400));
         }
     }
 
     @PatchMapping("/transaction/finalize/{topUpTransactionId}")
-    public ResponseEntity<TransactionResponseDto> processTransaction(@PathVariable UUID topUpTransactionId,
-                                                                     @RequestBody TransactionFinalizeDto transactionFinalizeDto,
-                                                                     @RequestHeader("Cookie") UUID userId) {
+    public ResponseEntity<?> processTransaction(@PathVariable UUID topUpTransactionId,
+                                                @RequestBody TransactionFinalizeDto transactionFinalizeDto,
+                                                @RequestHeader("Cookie") UUID userId) {
         try {
             TransactionState transactionState = TransactionState.valueOf(transactionFinalizeDto.getTransactionState());
             ShardUtils.setShard(userId);
             TransactionEntity topUpRequestInProgress = transactionService.finalizeTransaction(topUpTransactionId, transactionState, userId);
             TransactionResponseDto transactionResponseDto = transactionMapper.map(topUpRequestInProgress);
             return new ResponseEntity<>(transactionResponseDto, HttpStatusCode.valueOf(200));
-        }
-        catch (Exception e) {
-            return new ResponseEntity<>(HttpStatusCode.valueOf(400));
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatusCode.valueOf(400));
         }
     }
-
-
-
 
 
 }

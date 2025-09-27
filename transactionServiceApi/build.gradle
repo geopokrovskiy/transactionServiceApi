@@ -19,6 +19,14 @@ configurations {
 
 repositories {
 	mavenCentral()
+	maven {
+		url "https://nexus.gpokcicd.online/repository/commons/"
+		credentials {
+			username = project.findProperty("nexusUsername") ?: System.getenv("NEXUS_USERNAME")
+			password = project.findProperty("nexusPassword") ?: System.getenv("NEXUS_PASSWORD")
+		}
+		allowInsecureProtocol = false
+	}
 }
 
 dependencies {
@@ -56,8 +64,8 @@ dependencies {
 	implementation "org.mapstruct:mapstruct:$mapStructVersion"
 	annotationProcessor "org.mapstruct:mapstruct-processor:$mapStructVersion"
 
-	//COMMON
-	implementation files("$commonPath")
+	//COMMONS
+	implementation "com.geopokrovskiy:commons:${commonsVersion}"
 }
 
 tasks.named('test') {

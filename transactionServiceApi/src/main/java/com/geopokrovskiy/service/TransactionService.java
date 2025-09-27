@@ -35,6 +35,7 @@ public class TransactionService {
     private final PaymentRequestService paymentRequestService;
     private final WalletService walletService;
 
+    @Transactional
     public TransactionEntity createNewTopUpTransaction(UUID topUpRequestId, UUID userId) {
         TopUpRequestEntity topUpRequestEntity = topUpService.getTopUpById(topUpRequestId);
         if (topUpRequestEntity == null) {

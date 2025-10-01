@@ -122,6 +122,18 @@ public class TransactionService {
     }
 
     @Transactional
+    public TransactionEntity setExternalIdToTransaction(UUID transactionId, UUID externalId) {
+        TransactionEntity transaction = transactionRepository.findById(transactionId).orElse(null);
+        if (transaction == null) {
+            log.error("Transaction entity with {} has not been found", transactionId);
+            throw new RuntimeException("Transaction not found");
+        }
+        transaction.setExternalProviderId(externalId);
+        log.info("Transaction {} has been successfully updated with new externalId {}", transaction, externalId);
+        return transactionRepository.save(transaction);
+    }
+
+    @Transactional
     public TransactionEntity finalizeTransaction(UUID transactionId, TransactionState state, UUID userId) {
         TransactionEntity transactionInProgress = transactionRepository.findById(transactionId).orElse(null);
         if (transactionInProgress == null) {

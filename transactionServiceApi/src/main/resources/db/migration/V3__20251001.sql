@@ -1,0 +1,1 @@
+ALTER TABLE transaction_service.transactions ADD external_provider_uid UUID;

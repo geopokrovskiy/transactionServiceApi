@@ -47,4 +47,7 @@ public class TransactionEntity {
 
     @Column(name = "payment_request_uid")
     private UUID paymentRequestId;
+
+    @Column(name = "external_provider_uid")
+    private UUID externalProviderId;
 }

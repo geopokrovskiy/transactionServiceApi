@@ -1,8 +1,8 @@
 package com.geopokrovskiy.rest;
 
-import com.geopokrovskiy.configuration.datasource.ShardContextHolder;
 import com.geopokrovskiy.dto.transaction_service.transaction.TransactionFinalizeDto;
 import com.geopokrovskiy.dto.transaction_service.transaction.TransactionResponseDto;
+import com.geopokrovskiy.dto.transaction_service.transaction.TransactionSetExternalIdRequestDto;
 import com.geopokrovskiy.dto.transaction_service.withdrawal.WithdrawalCreateRequestDto;
 import com.geopokrovskiy.dto.transaction_service.withdrawal.WithdrawalResponseDto;
 import com.geopokrovskiy.entity.payment_request.WithdrawalRequestEntity;
@@ -14,6 +14,7 @@ import com.geopokrovskiy.service.TransactionService;
 import com.geopokrovskiy.service.WithdrawalService;
 import com.geopokrovskiy.utils.ShardUtils;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -23,6 +24,7 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/v1/withdrawals/user")
 @AllArgsConstructor
+@Slf4j
 public class WithdrawalController {
 
     private final WithdrawalService withdrawalService;
@@ -58,6 +60,24 @@ public class WithdrawalController {
         }
     }
 
+    @PutMapping("/transaction/process")
+    public ResponseEntity<?> setExternalIdToTopUpTransaction(@RequestBody TransactionSetExternalIdRequestDto transactionSetExternalIdRequestDto, @RequestHeader("Cookie") UUID userId) {
+        try {
+            ShardUtils.setShard(userId);
+            UUID transactionId = transactionSetExternalIdRequestDto.getUid();
+            UUID externalId = transactionSetExternalIdRequestDto.getExternalProviderId();
+            if (externalId == null) {
+                log.error("External id of transaction {} is null", transactionId);
+                throw new RuntimeException("External id is null");
+            }
+            TransactionEntity topUpRequestCreated = transactionService.setExternalIdToTransaction(transactionId, externalId);
+            TransactionResponseDto transactionResponseDto = transactionMapper.map(topUpRequestCreated);
+            return new ResponseEntity<>(transactionResponseDto, HttpStatusCode.valueOf(200));
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatusCode.valueOf(400));
+        }
+    }
+
     @PatchMapping("/transaction/finalize/{withdrawalTransactionId}")
     public ResponseEntity<TransactionResponseDto> processTransaction(@PathVariable UUID withdrawalTransactionId,
                                                                      @RequestBody TransactionFinalizeDto transactionFinalizeDto,
@@ -68,8 +88,7 @@ public class WithdrawalController {
             TransactionEntity withdrawalRequestInProgress = transactionService.finalizeTransaction(withdrawalTransactionId, transactionState, userId);
             TransactionResponseDto transactionResponseDto = transactionMapper.map(withdrawalRequestInProgress);
             return new ResponseEntity<>(transactionResponseDto, HttpStatusCode.valueOf(200));
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             return new ResponseEntity<>(HttpStatusCode.valueOf(400));
         }
     }

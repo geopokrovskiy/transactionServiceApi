@@ -4,6 +4,7 @@ import com.geopokrovskiy.dto.transaction_service.top_up.TopUpCreateRequestDto;
 import com.geopokrovskiy.dto.transaction_service.top_up.TopUpResponseDto;
 import com.geopokrovskiy.dto.transaction_service.transaction.TransactionFinalizeDto;
 import com.geopokrovskiy.dto.transaction_service.transaction.TransactionResponseDto;
+import com.geopokrovskiy.dto.transaction_service.transaction.TransactionSetExternalIdRequestDto;
 import com.geopokrovskiy.entity.payment_request.TopUpRequestEntity;
 import com.geopokrovskiy.entity.transaction.TransactionEntity;
 import com.geopokrovskiy.entity.transaction.TransactionState;
@@ -13,6 +14,7 @@ import com.geopokrovskiy.service.TopUpService;
 import com.geopokrovskiy.service.TransactionService;
 import com.geopokrovskiy.utils.ShardUtils;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,6 +24,7 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/v1/top_ups/user")
 @AllArgsConstructor
+@Slf4j
 public class TopUpController {
 
     private final TopUpService topUpService;
@@ -50,6 +53,24 @@ public class TopUpController {
             TransactionEntity topUpRequestCreated = transactionService.createNewTopUpTransaction(topUpRequestId, userId);
             TransactionResponseDto transactionResponseDto = transactionMapper.map(topUpRequestCreated);
             return new ResponseEntity<>(transactionResponseDto, HttpStatusCode.valueOf(201));
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatusCode.valueOf(400));
+        }
+    }
+
+    @PutMapping("/transaction/process")
+    public ResponseEntity<?> setExternalIdToTopUpTransaction(@RequestBody TransactionSetExternalIdRequestDto transactionSetExternalIdRequestDto, @RequestHeader("Cookie") UUID userId) {
+        try {
+            ShardUtils.setShard(userId);
+            UUID transactionId = transactionSetExternalIdRequestDto.getUid();
+            UUID externalId = transactionSetExternalIdRequestDto.getExternalProviderId();
+            if (externalId == null) {
+                log.error("External id of transaction {} is null", transactionId);
+                throw new RuntimeException("External id is null");
+            }
+            TransactionEntity topUpRequestCreated = transactionService.setExternalIdToTransaction(transactionId, externalId);
+            TransactionResponseDto transactionResponseDto = transactionMapper.map(topUpRequestCreated);
+            return new ResponseEntity<>(transactionResponseDto, HttpStatusCode.valueOf(200));
         } catch (Exception e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatusCode.valueOf(400));
         }

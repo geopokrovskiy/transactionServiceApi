@@ -27,6 +27,7 @@ repositories {
 		}
 		allowInsecureProtocol = false
 	}
+	maven { url 'https://packages.confluent.io/maven/' }
 }
 
 dependencies {
@@ -59,6 +60,9 @@ dependencies {
 	testImplementation "org.testcontainers:postgresql:$testContainersPostgresVersion"
 	testImplementation "org.testcontainers:junit-jupiter:$testContainersJunitJupiter"
 
+	// KAFKA
+	implementation 'org.springframework.kafka:spring-kafka'
+	implementation "io.confluent:kafka-avro-serializer:${kafkaAvroSerializer}"
 
 	//MAPSTRUCT
 	implementation "org.mapstruct:mapstruct:$mapStructVersion"

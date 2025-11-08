@@ -4,6 +4,8 @@ server:
 spring:
   application:
     name: transaction_service_api
+  config:
+    import: classpath:custom.properties
   jpa:
     show-sql: true
     hibernate:
@@ -13,11 +15,11 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
   datasource:
     shard1:
-      jdbc-url: jdbc:postgresql://localhost:5432/transaction_service_api_shard1
+      jdbc-url: jdbc:postgresql://host.docker.internal:5432/transaction_service_api_shard1
       username: postgres
       password: root
     shard2:
-      jdbc-url: jdbc:postgresql://localhost:5432/transaction_service_api_shard2
+      jdbc-url: jdbc:postgresql://host.docker.internal:5432/transaction_service_api_shard2
       username: postgres
       password: root
   flyway:
@@ -25,6 +27,18 @@ spring:
     locations: classpath:db/migration
     user: ${spring.datasource.shard1.username}
     password: ${spring.datasource.shard1.password}
+  kafka:
+    bootstrap-servers: kafka:9092
+    consumer:
+      group-id: webhook-consumer
+      auto-offset-reset: earliest
+      key-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
+      properties:
+        schema.registry.url: http://schema-registry:8081
+        specific.avro.reader: false
+        spring.deserializer.value.delegate.class: io.confluent.kafka.serializers.KafkaAvroDeserializer
+        spring.deserializer.key.delegate.class: org.apache.kafka.common.serialization.StringDeserializer
 
 logging:
   level:

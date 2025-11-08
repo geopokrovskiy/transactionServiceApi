@@ -43,6 +43,7 @@ public class TransactionEntity {
     private TransactionType transactionType;
 
     @Column
+    @Enumerated(EnumType.STRING)
     private TransactionState state;
 
     @Column(name = "payment_request_uid")

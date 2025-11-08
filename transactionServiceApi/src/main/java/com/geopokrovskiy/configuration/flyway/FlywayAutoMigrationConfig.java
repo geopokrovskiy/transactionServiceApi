@@ -19,11 +19,14 @@ public class FlywayAutoMigrationConfig {
     @Value("${spring.datasource.shard1.password}")
     private String password;
 
+    @Value("${host}")
+    private String host;
+
     @Bean
     @FlywayDataSource
     public DataSource shard1FlywayDataSource() {
         return DataSourceBuilder.create()
-                .url("jdbc:postgresql://localhost:5432/transaction_service_api_shard1")
+                .url("jdbc:postgresql://" + host + ":5432/transaction_service_api_shard1")
                 .username(user)
                 .password(password)
                 .build();
@@ -33,7 +36,7 @@ public class FlywayAutoMigrationConfig {
     @FlywayDataSource
     public DataSource shard2FlywayDataSource() {
         return DataSourceBuilder.create()
-                .url("jdbc:postgresql://localhost:5432/transaction_service_api_shard2")
+                .url("jdbc:postgresql://" + host + ":5432/transaction_service_api_shard2")
                 .username(user)
                 .password(password)
                 .build();
@@ -42,13 +45,13 @@ public class FlywayAutoMigrationConfig {
     @PostConstruct
     public void migrateAll() {
         Flyway.configure()
-                .dataSource("jdbc:postgresql://localhost:5432/transaction_service_api_shard1", user, password)
+                .dataSource("jdbc:postgresql://" + host + ":5432/transaction_service_api_shard1", user, password)
                 .locations("classpath:db/migration")
                 .load()
                 .migrate();
 
         Flyway.configure()
-                .dataSource("jdbc:postgresql://localhost:5432/transaction_service_api_shard2", user, password)
+                .dataSource("jdbc:postgresql://" + host + ":5432/transaction_service_api_shard2", user, password)
                 .locations("classpath:db/migration")
                 .load()
                 .migrate();

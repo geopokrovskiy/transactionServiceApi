@@ -133,6 +133,10 @@ public class TransactionService {
         return transactionRepository.save(transaction);
     }
 
+    public TransactionEntity getTransactionByExternalProviderId(UUID externalProviderId) {
+        return transactionRepository.findByExternalProviderId(externalProviderId);
+    }
+
     @Transactional
     public TransactionEntity finalizeTransaction(UUID transactionId, TransactionState state, UUID userId) {
         TransactionEntity transactionInProgress = transactionRepository.findById(transactionId).orElse(null);

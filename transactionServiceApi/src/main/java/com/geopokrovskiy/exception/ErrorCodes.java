@@ -9,4 +9,7 @@ public class ErrorCodes {
     public static final String INVALID_CARD = "INVALID_CARD";
     public static final String UNKNOWN_CARD = "UNKNOWN_CARD";
     public static final String INSUFFICIENT_FUNDS = "INSUFFICIENT_FUNDS";
+    public static final String TRANSACTION_NOT_FOUND = "TRANSACTION_NOT_FOUND";
+    public static final String TRANSFER_REQUEST_NOT_FOUND = "TRANSFER_REQUEST_NOT_FOUND";
+    public static final String KAFKA_ERROR = "KAFKA_ERROR";
 }

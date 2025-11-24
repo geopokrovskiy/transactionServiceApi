@@ -9,6 +9,8 @@ import com.geopokrovskiy.entity.transaction.TransactionEntity;
 import com.geopokrovskiy.entity.transaction.TransactionState;
 import com.geopokrovskiy.entity.transaction.TransactionType;
 import com.geopokrovskiy.entity.wallet.WalletEntity;
+import com.geopokrovskiy.exception.ErrorCodes;
+import com.geopokrovskiy.exception.TransactionNotFoundException;
 import com.geopokrovskiy.repository.TransactionRepository;
 import com.geopokrovskiy.utils.ShardUtils;
 import lombok.AllArgsConstructor;
@@ -66,12 +68,12 @@ public class TransactionService {
                 .updatedAt(LocalDateTime.now())
                 .amount(paymentRequestEntity.getAmount())
                 .transactionType(TransactionType.TOP_UP)
-                .state(TransactionState.CREATED)
+                .state(TransactionState.IN_PROGRESS)
                 .walletName(wallet.getName())
                 .build();
 
         TransactionEntity savedTransaction = transactionRepository.save(transaction);
-        log.info("Top up transaction created: {}", savedTransaction);
+        log.info("Transaction {} has been successfully created and is currently in progress", savedTransaction);
         return savedTransaction;
     }
 
@@ -112,8 +114,8 @@ public class TransactionService {
             log.info("Insufficient balance for transaction {}", transaction);
             transaction.setState(TransactionState.FAILED);
         } else {
-            log.info("Transaction {} has been successfully created", transaction);
-            transaction.setState(TransactionState.CREATED);
+            log.info("Transaction {} has been successfully created and is currently in progress", transaction);
+            transaction.setState(TransactionState.IN_PROGRESS);
         }
 
         TransactionEntity savedTransaction = transactionRepository.save(transaction);
@@ -123,11 +125,9 @@ public class TransactionService {
 
     @Transactional
     public TransactionEntity setExternalIdToTransaction(UUID transactionId, UUID externalId) {
-        TransactionEntity transaction = transactionRepository.findById(transactionId).orElse(null);
-        if (transaction == null) {
-            log.error("Transaction entity with {} has not been found", transactionId);
-            throw new RuntimeException("Transaction not found");
-        }
+        TransactionEntity transaction = transactionRepository.findById(transactionId).orElseThrow(
+                () -> new TransactionNotFoundException("Transaction entity with " + transactionId + " has not been found",
+                        ErrorCodes.TRANSACTION_NOT_FOUND));
         transaction.setExternalProviderId(externalId);
         log.info("Transaction {} has been successfully updated with new externalId {}", transaction, externalId);
         return transactionRepository.save(transaction);
@@ -139,25 +139,20 @@ public class TransactionService {
 
     @Transactional
     public TransactionEntity finalizeTransaction(UUID transactionId, TransactionState state, UUID userId) {
-        TransactionEntity transactionInProgress = transactionRepository.findById(transactionId).orElse(null);
-        if (transactionInProgress == null) {
-            log.error("Transaction not found");
-            throw new RuntimeException("Transaction not found");
-        }
+        TransactionEntity transactionInProgress = transactionRepository.findById(transactionId).orElseThrow(() -> new TransactionNotFoundException("Transaction not found",
+                ErrorCodes.TRANSACTION_NOT_FOUND));
 
         String transactionType = transactionInProgress.getTransactionType().toString();
-        if (!transactionInProgress.getState().equals(TransactionState.CREATED)) {
-            log.error("Transaction status of type {} is different from CREATED", transactionType);
-            throw new RuntimeException("Top up transaction status is different from CREATED");
+        if (!transactionInProgress.getState().equals(TransactionState.IN_PROGRESS)) {
+            log.error("Transaction status of type {} is different from IN_PROGRESS", transactionType);
+            throw new RuntimeException("Top up transaction status is different from IN_PROGRESS");
         }
 
         if (!transactionInProgress.getUserId().equals(userId)) {
             log.error("{} request user id mismatch", transactionType);
             throw new RuntimeException(transactionType + " request user id mismatch");
         }
-
         transactionInProgress.setUpdatedAt(LocalDateTime.now());
-        transactionInProgress.setState(TransactionState.IN_PROGRESS);
 
         TransactionEntity savedTransactionInProgress = transactionRepository.save(transactionInProgress);
         log.info("Transaction {} in progress {}", transactionType, savedTransactionInProgress);
